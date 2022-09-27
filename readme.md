@@ -6,6 +6,9 @@ Keeping up with the current trend of multi-factor authentication, the purpose of
 
 ## Authors
 Haley Huntington, huntingh@purdue.edu
+
 Hansoo Kim, kim2283@purdue.edu
+
 Hussain Al-Naamani, halnaam@purdue.edu
+
 Leo Seo, seo47@purdue.edu
