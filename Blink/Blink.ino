@@ -1,6 +1,6 @@
 const int led1 = 2; //what pin the LED is
-// const int led3 = 14;
-// bool buttonState = 0;
+const int button1 = 3;
+int buttonState = 0;
 
 
 void turn_on(int pin){
@@ -14,13 +14,17 @@ void turn_off(int pin){
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(led1, OUTPUT);
+  pinMode(button1, INPUT);
 }
 
 // the loop function runs over and over again forever
 void loop() {
+  buttonState = digitalRead(button1);
+
+  if (buttonState == HIGH) {
     turn_on(led1);
-    delay(1000); 
+  } else {
     turn_off(led1);
-    delay(1000); 
+  }
 
 }
