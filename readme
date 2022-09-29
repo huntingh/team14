@@ -8,3 +8,4 @@ If valid, it should authenticate the user and allow to proceed to the next step 
 If not, it should remain idle until valid key is presented.
 
 This Github branch includes the code/pseudocode of RC522 implementation and the activity diagram of the software.
+The code is under "rfid_module" folder.
