@@ -1,2 +1,10 @@
-this is a read me! Haley was here
-testing github desktop.
+"RFID Scanner - RC522"
+
+This program uses Arduino libraries: <SPI.h>, <MFRC522.h>
+
+The module that is used in this subsystem is RC522 but it is compatible with MFRC522 Arduino library.
+The software should read the data of the unique key and determine the validity.
+If valid, it should authenticate the user and allow to proceed to the next step of authentication, which is fingerprint scanner.
+If not, it should remain idle until valid key is presented.
+
+This Github branch includes the code/pseudocode of RC522 implementation and the activity diagram of the software.
