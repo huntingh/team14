@@ -204,12 +204,15 @@ int validate_card_serial(){
 void loop() {
   
  if(scan_for_card()){//If I found a card, I will search for the serial. If not, the loop restarts. 
-      if(!read_card_serial()){ //If we can't read the serial
-          delay(100); //Wait 1/10 of a second
+      if(!validate_card_serial()){ //If we can't read the serial
+          turn_on_LED(rr);
+          delay(3000);
+          turn_off_LED(rr); 
           return; //Start void loop over
       }
     }
   else{
+    
     delay(100); //Wait 1/10 of a second
     return; //Start void loop over
   }
@@ -227,9 +230,16 @@ void loop() {
     return;
   }
 
-  while (exit_call != 1){
-    getFingerprintID();
-    delay(50); 
-  }
 
+  long int t1 = millis();
+  long int time = 0;
+  while(time <= 10000) {
+    Serial.println(time);
+    Serial.println();    
+    getFingerprintID();
+    if(exit_call == 1){
+      break;
+    }
+    time = millis() - t1;
+  }
 }
