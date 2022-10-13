@@ -108,6 +108,9 @@ uint8_t getFingerprintID() {
     return p;
   } else if (p == FINGERPRINT_NOTFOUND) {
     Serial.println("Did not find a match");
+    turn_on_LED(fr);
+    delay(3000);
+    turn_off_LED(fr); 
     return p;
   } else {
     Serial.println("Unknown error");
@@ -118,9 +121,9 @@ uint8_t getFingerprintID() {
   Serial.print("Found ID #"); Serial.print(finger.fingerID);
   Serial.print(" with confidence of "); Serial.println(finger.confidence);
 
-  digitalWrite(5, HIGH);
-  delay(5000);
-  digitalWrite(5, LOW);
+  turn_on_LED(fg);
+  delay(3000);
+  turn_off_LED(fg); 
   return finger.fingerID;
 }
 
@@ -229,7 +232,6 @@ void loop() {
     turn_off_LED(rr); 
     return;
   }
-
 
   long int t1 = millis();
   long int time = 0;
