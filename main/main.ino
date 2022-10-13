@@ -32,7 +32,6 @@ void turn_on_LED(int pin);
 void turn_off_LED(int pin);
 void read_button(int pin);
 uint8_t readnumber(void);
-int getFingerprintIDez(void);
 uint8_t getFingerprintID(void);
 
 void turn_on_LED(int pin){
@@ -50,17 +49,6 @@ uint8_t readnumber(void) {
     num = Serial.parseInt();
   }
   return num;
-}
-
-int getFingerprintIDez() {
-  uint8_t p = finger.getImage();
-  if (p != FINGERPRINT_OK)  return -1;
-
-  p = finger.image2Tz();
-  if (p != FINGERPRINT_OK)  return -1;
-
-  p = finger.fingerFastSearch();
-  if (p != FINGERPRINT_OK)  return -1;
 }
 
 uint8_t getFingerprintID() {
@@ -81,7 +69,7 @@ uint8_t getFingerprintID() {
     default:
       Serial.println("Unknown error");
       return p;
-  }
+              }
 
   // OK success!
 
@@ -176,15 +164,17 @@ void read_button(int pin){
   buttonState = digitalRead(pin);
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  if ( !mfrc522.PICC_IsNewCardPresent()) {
-    return;
+int scan_for_card(){
+  if ( !mfrc522.PICC_IsNewCardPresent()) { //If a card isn't present, return 0
+    return 0;
   }
-  if ( !mfrc522.PICC_ReadCardSerial()) {
-    return;
-  }
+  if ( !mfrc522.PICC_ReadCardSerial()) { //If it can't read the card, return 0
+    return 0;
+  }  
 
+  return 1; //This only happens when it passes both if's
+}
+int validate_card_serial(){
   Serial.print("Input RFID Tag Serial Number: ");
   String content= "";
   byte letter;
@@ -200,15 +190,41 @@ void loop() {
   if (content.substring(1) == "13 BD 81 1F") {
     Serial.println("Authorized access");
     Serial.println();
-    turn_on_LED(rg);
-    delay(3000);
-    turn_off_LED(rg); 
+    return 1;
+    
   } else {
     Serial.println("Authorized denied");
     Serial.println();
+    return 0;
+  }
+
+}
+
+
+void loop() {
+  
+ if(scan_for_card()){//If I found a card, I will search for the serial. If not, the loop restarts. 
+      if(!read_card_serial()){ //If we can't read the serial
+          delay(100); //Wait 1/10 of a second
+          return; //Start void loop over
+      }
+    }
+  else{
+    delay(100); //Wait 1/10 of a second
+    return; //Start void loop over
+  }
+
+  int validated = validate_card_serial();
+  if(validated){
+    turn_on_LED(rg);
+    delay(3000);
+    turn_off_LED(rg); 
+  }
+  else{
     turn_on_LED(rr);
     delay(3000);
-    turn_off_LED(rr);  
+    turn_off_LED(rr); 
+    return;
   }
 
   while (exit_call != 1){
@@ -216,11 +232,4 @@ void loop() {
     delay(50); 
   }
 
-  // read_button(button1);
-  // if(buttonState == 1){
-  //   turn_on_LED(fr);
-  //   }
-  // else{
-  //   turn_off_LED(fr);
-  //   }
 }
