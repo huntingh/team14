@@ -3,6 +3,7 @@
 #include <MFRC522.h>
 #include <Adafruit_Fingerprint.h>
 #include <SoftwareSerial.h>
+#include <Wire.h>
 
 //Global Variable Definitions
 #define SDA_DIO 53
@@ -15,7 +16,7 @@ const int fr = 7; //Fingerprint Red
 const int fg = 8; //Fingerprint Green
 const int rr = 5; //RFID Red
 const int rg = 6; //RFID Green
-const int br = 3; //Battery Red
+const int br = 33; //Battery Red
 const int by = 4; //Battery Yellow
 const int button1 = 2; //Reset Button
 
@@ -25,7 +26,8 @@ int exit_call = 0;
 MFRC522 mfrc522(SDA_DIO, RESET_DIO);
 SoftwareSerial mySerial(RX_PIN, TX_PIN);
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
-uint8_t id;
+uint8_t id = 0;
+float voltage = 0;
 
 //Global Functions Definitions
 void turn_on_LED(int pin);
@@ -33,6 +35,8 @@ void turn_off_LED(int pin);
 void read_button(int pin);
 uint8_t readnumber(void);
 uint8_t getFingerprintID(void);
+void batteryStatusLED(void);
+void findVoltage(void);
 
 void turn_on_LED(int pin){
   digitalWrite(pin, HIGH);   // turn the LED on (HIGH is the voltage level)
@@ -127,6 +131,32 @@ uint8_t getFingerprintID() {
   return finger.fingerID;
 }
 
+void batteryStatusLED(){
+  if(voltage<=4.87){ //2.75
+    turn_off_LED(by);
+    turn_on_LED(br);
+  }else if(voltage <= 4.88){ //3.75
+    turn_off_LED(br);
+    turn_on_LED(by);
+  }
+  else{
+    turn_off_LED(br);
+    turn_off_LED(by);
+  }
+}
+void findVoltage()
+{
+  float Total = 0;
+  float average_value = 0;
+  float total_value = 0;
+
+  int sensorValue = analogRead(A15); //read the A0 pin value
+  voltage = sensorValue * (5 / 1023.00); //convert the value to a true voltage.
+  Serial.print(" Voltage: ");
+  Serial.println(voltage);
+  Serial.println();
+}
+
 void setup() {
   Serial.begin(9600);
   SPI.begin();
@@ -205,6 +235,14 @@ int validate_card_serial(){
 
 
 void loop() {
+  findVoltage();
+  //batteryStatusLED();
+  turn_on_LED(br);
+  delay(3000);
+  turn_off_LED(br); 
+  turn_on_LED(by);
+  delay(3000);
+  turn_off_LED(by);
   
  if(scan_for_card()){//If I found a card, I will search for the serial. If not, the loop restarts. 
       if(!validate_card_serial()){ //If we can't read the serial
@@ -216,7 +254,7 @@ void loop() {
     }
   else{
     
-    delay(100); //Wait 1/10 of a second
+    delay(1000); //Wait 1/10 of a second
     return; //Start void loop over
   }
 
