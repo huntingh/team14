@@ -132,10 +132,10 @@ uint8_t getFingerprintID() {
 }
 
 void batteryStatusLED(){
-  if(voltage<=4.87){ //2.75
+  if(voltage<=2.75){ //2.75
     turn_off_LED(by);
     turn_on_LED(br);
-  }else if(voltage <= 4.88){ //3.75
+  }else if(voltage <= 3.75){ //3.75
     turn_off_LED(br);
     turn_on_LED(by);
   }
