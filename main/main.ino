@@ -16,8 +16,8 @@ const int fr = 7; //Fingerprint Red
 const int fg = 8; //Fingerprint Green
 const int rr = 5; //RFID Red
 const int rg = 6; //RFID Green
-const int br = 33; //Battery Red
-const int by = 4; //Battery Yellow
+const int br = 4; //Battery Red
+const int by = 33; //Battery Yellow
 const int button1 = 2; //Reset Button
 
 //Other Variable Definitions
@@ -140,8 +140,8 @@ void batteryStatusLED(){
     turn_on_LED(by);
   }
   else{
-    turn_off_LED(br);
     turn_off_LED(by);
+    turn_off_LED(br);
   }
 }
 void findVoltage()
@@ -236,14 +236,8 @@ int validate_card_serial(){
 
 void loop() {
   findVoltage();
-  //batteryStatusLED();
-  turn_on_LED(br);
-  delay(3000);
-  turn_off_LED(br); 
-  turn_on_LED(by);
-  delay(3000);
-  turn_off_LED(by);
-  
+  batteryStatusLED();
+
  if(scan_for_card()){//If I found a card, I will search for the serial. If not, the loop restarts. 
       if(!validate_card_serial()){ //If we can't read the serial
           turn_on_LED(rr);
