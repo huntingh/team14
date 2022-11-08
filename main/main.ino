@@ -19,10 +19,13 @@ const int rg = 6; //RFID Green
 const int br = 4; //Battery Red
 const int by = 33; //Battery Yellow
 const int button1 = 2; //Reset Button
+const int lock = 40;
+const int mag = 48;
 
 //Other Variable Definitions
 int buttonState = 0;
 int exit_call = 0;
+int magState = 0;
 MFRC522 mfrc522(SDA_DIO, RESET_DIO);
 SoftwareSerial mySerial(RX_PIN, TX_PIN);
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
@@ -37,6 +40,10 @@ uint8_t readnumber(void);
 uint8_t getFingerprintID(void);
 void batteryStatusLED(void);
 void findVoltage(void);
+int scan_for_card(void);
+int validate_card_serial(void);
+void openLock(void);
+void closeLock(void);
 
 void turn_on_LED(int pin){
   digitalWrite(pin, HIGH);   // turn the LED on (HIGH is the voltage level)
@@ -165,6 +172,8 @@ void setup() {
   pinMode(fg, OUTPUT);
   pinMode(rr, OUTPUT);
   pinMode(rg, OUTPUT);
+  pinMode(lock, OUTPUT);
+  pinMode(mag, INPUT_PULLUP);
   // pinMode(br, OUTPUT);
   // pinMode(by, OUTPUT);
   // pinMode(button1, INPUT);
@@ -233,10 +242,39 @@ int validate_card_serial(){
 
 }
 
+  void openLock(){
+    digitalWrite(lock,LOW);
+  }
+  void closeLock(){
+    digitalWrite(lock,HIGH);    
+
+
+  }
 
 void loop() {
-  findVoltage();
-  batteryStatusLED();
+  bool testLED = true;
+  if(testLED == true){
+    turn_on_LED(rr);
+    delay(1000);
+    turn_off_LED(rr); 
+    turn_on_LED(rg);
+    delay(1000);
+    turn_off_LED(rg); 
+    turn_on_LED(fr);
+    delay(1000);
+    turn_off_LED(fr); 
+    turn_on_LED(fg);
+    delay(1000);
+    turn_off_LED(fg); 
+    turn_on_LED(br);
+    delay(1000);
+    turn_off_LED(br); 
+    turn_on_LED(by);
+    delay(1000);
+    turn_off_LED(by);     
+  }
+  return;
+  
 
  if(scan_for_card()){//If I found a card, I will search for the serial. If not, the loop restarts. 
       if(!validate_card_serial()){ //If we can't read the serial
@@ -247,11 +285,9 @@ void loop() {
       }
     }
   else{
-    
     delay(1000); //Wait 1/10 of a second
     return; //Start void loop over
   }
-
   int validated = validate_card_serial();
   if(validated){
     turn_on_LED(rg);
@@ -264,7 +300,6 @@ void loop() {
     turn_off_LED(rr); 
     return;
   }
-
   long int t1 = millis();
   long int time = 0;
   while(time <= 10000) {
