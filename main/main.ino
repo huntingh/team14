@@ -22,6 +22,7 @@ const int button1 = 2; //Reset Button
 const int lock = 11;
 const int mag = 48;
 uint8_t id;
+bool flag = true;
 
 //Other Variable Definitions
 int buttonState = 0;
@@ -142,10 +143,15 @@ uint8_t getFingerprintID() {
   delay(3000); 
   magState = digitalRead(mag); 
   while(magState == HIGH){
-    delay(1000);
+    read_button(button1);
+    if(buttonState == 1){
+       while (!  getFingerprintEnroll() );
+    }
+    delay(2000);
     magState = digitalRead(mag); 
   }
   openLock();
+  Serial.print("Here mother forker ");
   return finger.fingerID;
 }
 
@@ -263,23 +269,23 @@ int validate_card_serial(){
   }
 
 void loop() {
-// // while (!  getFingerprintEnroll() );
-//   while(1){
-//     magState = digitalRead(mag); 
-//     if(magState == HIGH){
-//       turn_on_LED(rr);
-//       delay(3000);
-//       turn_off_LED(rr);
-//     }
-//     else if(magState == LOW){
-//       turn_on_LED(rg);
-//       delay(3000);
-//       turn_off_LED(rg);
-//     }
-//     delay(1000);    
-//   }
-  
+  Serial.println("Loopificate");
+  exit_call = 0;
 
+  // while(1){
+  //   magState = digitalRead(mag); 
+  //   if(magState == HIGH){
+  //     turn_on_LED(rr);
+  //     delay(3000);
+  //     turn_off_LED(rr);
+  //   }
+  //   else if(magState == LOW){
+  //     turn_on_LED(rg);
+  //     delay(3000);
+  //     turn_off_LED(rg);
+  //   }
+  //   delay(1000);    
+  // }
 
 
  if(scan_for_card()){//If I found a card, I will search for the serial. If not, the loop restarts. 
@@ -299,23 +305,25 @@ void loop() {
     turn_on_LED(rg);
     delay(3000);
     turn_off_LED(rg); 
+    long int t1 = millis();
+    long int time = 0;
+    while(time <= 10000) {
+      Serial.println(time);
+      Serial.println();    
+      getFingerprintID();
+      Serial.println("Over here.");
+
+      if(exit_call == 1){
+        break;
+      }
+      time = millis() - t1;
+    }
   }
   else{
     turn_on_LED(rr);
     delay(3000);
     turn_off_LED(rr); 
     return;
-  }
-  long int t1 = millis();
-  long int time = 0;
-  while(time <= 10000) {
-    Serial.println(time);
-    Serial.println();    
-    getFingerprintID();
-    if(exit_call == 1){
-      break;
-    }
-    time = millis() - t1;
   }
 }
 
