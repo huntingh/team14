@@ -26,7 +26,8 @@ bool flag = true;
 
 //Other Variable Definitions
 int buttonState = 0;
-int exit_call = 0;
+int rfid_exit_call = 0;
+int fingerprint_exit_call = 0;
 int magState = 0;
 MFRC522 mfrc522(SDA_DIO, RESET_DIO);
 SoftwareSerial mySerial(RX_PIN, TX_PIN);
@@ -113,7 +114,7 @@ uint8_t getFingerprintID() {
   p = finger.fingerSearch();
   if (p == FINGERPRINT_OK) {
     Serial.println("Found a print match!");
-    exit_call = 1;
+    fingerprint_exit_call = 1;
     //finger.LEDcontrol(FINGERPRINT_LED_ON, 0, FINGERPRINT_LED_RED);
     //finger.LEDcontrol(FINGERPRINT_LED_FLASHING, 25, FINGERPRINT_LED_RED, 10);
     //should add part to open lock 
@@ -134,24 +135,6 @@ uint8_t getFingerprintID() {
   // found a match!
   Serial.print("Found ID #"); Serial.print(finger.fingerID);
   Serial.print(" with confidence of "); Serial.println(finger.confidence);
-
-  turn_on_LED(fg);
-  delay(3000);
-  turn_off_LED(fg);
-
-  closeLock();
-  delay(3000); 
-  magState = digitalRead(mag); 
-  while(magState == HIGH){
-    read_button(button1);
-    if(buttonState == 1){
-       while (!  getFingerprintEnroll() );
-    }
-    delay(2000);
-    magState = digitalRead(mag); 
-  }
-  openLock();
-  Serial.print("Here mother forker ");
   return finger.fingerID;
 }
 
@@ -270,7 +253,6 @@ int validate_card_serial(){
 
 void loop() {
   Serial.println("Loopificate");
-  exit_call = 0;
 
   // while(1){
   //   magState = digitalRead(mag); 
@@ -300,6 +282,7 @@ void loop() {
     delay(1000); //Wait 1/10 of a second
     return; //Start void loop over
   }
+
   int validated = validate_card_serial();
   if(validated){
     turn_on_LED(rg);
@@ -311,19 +294,39 @@ void loop() {
       Serial.println(time);
       Serial.println();    
       getFingerprintID();
-      Serial.println("Over here.");
+      if(finger.fingerID == 0){
+        //turn on LEDS
+        turn_on_LED(fg);
+        delay(3000);
+        turn_off_LED(fg);
 
-      if(exit_call == 1){
-        break;
+        //open door
+        closeLock();
+        delay(3000); 
+
+        magState = digitalRead(mag); 
+        while(magState == HIGH){
+          read_button(button1);
+          if(buttonState == 1){
+            while (!  getFingerprintEnroll() );
+          }
+          delay(2000);
+          magState = digitalRead(mag); 
+        }
+
+        openLock();
+        Serial.print("Done mother forker ");
+        fingerprint_exit_call = 0;
+        return;
       }
-      time = millis() - t1;
+      else{
+        time = millis() - t1;
+        turn_on_LED(rr);
+        delay(1000);
+        turn_off_LED(rr); 
+        
+      }
     }
-  }
-  else{
-    turn_on_LED(rr);
-    delay(3000);
-    turn_off_LED(rr); 
-    return;
   }
 }
 
